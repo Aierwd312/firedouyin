@@ -4,12 +4,10 @@ auto;
 var storage = storages.create("Aierwd");
 var intervalId;  // 用于存储计时器ID
 var isRunning = false;  // 标记计时器是否正在运行
-
 // 全局变量声明
 var password;
 var friendName;
 var messages;
-var status1 = false;
 // 使用settime函数并保存计时器ID
 var timeoutId;
 // 这里是唤醒并解锁手机的函数，保留原来的逻辑
@@ -26,13 +24,10 @@ wakeAndUnlock(password).then(() => {
     return setupUI().then(() => {
     });
 });
-
 setupUI();  // 初始化UI
-
 // 获取 friendName 和 messages 的值
 friendName = storage.get("friendName", "");
 messages = storage.get("messages", "");
-
 // 检查 friendName 和 messages 是否为空
 if (!friendName || !messages) {
     log("friendName 或 messages 为空，不执行 countdownTimer。");
@@ -51,9 +46,6 @@ if (!friendName || !messages) {
         countdownTimer();
     }
 }
-
-
-
 function wakeAndUnlock(password) {
     return new Promise((resolve, reject) => {
         if (!device.isScreenOn()) {
@@ -84,7 +76,6 @@ function wakeAndUnlock(password) {
         }
     });
 }
-
 // 创建UI界面函数
 function setupUI() {
     return new Promise((resolve) => {
@@ -151,8 +142,7 @@ function setupUI() {
                 // 使用线程启动 sendMessage，避免阻塞 UI 线程
                 threads.start(function () {
                         sendMessage();
-                        status1 =true;
-                        status2();
+    
                         exit();
                         
                 });
@@ -203,8 +193,7 @@ function countdownTimer() {
                     }
                     threads.start(function () {
                         sendMessage();
-                        status1 =true;
-                        status2();
+                       
                         exit();
                 });
                     // 自动点击开始按钮
@@ -278,11 +267,9 @@ function sendMessage() {
         log("点击允许...");
         clickWidgetByPosition(text("允许").untilFindOne(500));
     }
-
     sleep(5000, 500); // 等待一段时间
     log("关闭弹窗...");
     closePopup();
-
     // 进入消息记录对应好友
     log("进入消息界面...");
     var messagesTextWidget = text("消息")
@@ -326,8 +313,6 @@ if (typeof friendName === "undefined" || friendName === null) {
         exit();
     }
     sleep(3000, 100);
-
-
     // 发送'续火花'消息
     log("尝试发送'续火花'消息...");
     var maxAttempts = 5; // 尝试找到输入框的最大次数
@@ -338,7 +323,6 @@ if (typeof friendName === "undefined" || friendName === null) {
             log("找不到输入框，尝试点击语音按钮");
             // 查找ID为 "k5d" 的元素，给定一个最大等待时间，单位是毫秒
     var element = id("k5d").findOne(5000);
-
     if (element != null) {
         element.click();
     } else {
@@ -352,7 +336,6 @@ if (typeof friendName === "undefined" || friendName === null) {
             log("未适配");
         }
     }
-
             sleep(1000); // 等待一秒后再次检查
             attempts++;
         } else {
@@ -363,7 +346,6 @@ if (typeof friendName === "undefined" || friendName === null) {
             break; // 如果输入框存在，退出循环
         }
     }
-
     if (attempts == maxAttempts) {
         throw new Error("多次尝试后仍找不到输入框，无法发送消息。");
     }
@@ -376,13 +358,12 @@ if (typeof friendName === "undefined" || friendName === null) {
         sleep(1000);
         back();
         sleep(1000);
-        
         log("成功发送'续火花'消息");
         closedouyin();
         toast("正在关闭抖音");
         sleep(1800);
         home();
-        status1 = true;
+ 
         var deviceofff = runtime.accessibilityBridge.getService().performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
     } else {
         log("没有找到新发送按钮,尝试旧按钮");
@@ -396,13 +377,11 @@ if (typeof friendName === "undefined" || friendName === null) {
             sleep(1000);
             back();
             sleep(1000);
-            
             log("成功发送'续火花'消息");
             closedouyin();
             toast("正在关闭抖音");
             sleep(1800);
             home();
-            status1 = true;
             var deviceofff = runtime.accessibilityBridge.getService().performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
         } else {
             // 处理找不到 '发送按钮' 的情况
@@ -411,7 +390,7 @@ if (typeof friendName === "undefined" || friendName === null) {
     }
     var deviceofff = runtime.accessibilityBridge.getService().performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
 }
-// 辅助函数
+// 辅助点击函数
 function clickWidgetByPosition(widget) {
     while (!widget.clickable()) {
         widget = widget.parent();
@@ -446,26 +425,3 @@ function closedouyin() {
         log("无法关闭 " + app.getAppName(packageName));
     }
 }
-
-//推送钉钉消息函数
-function status2(){
-    if(status1 == true){
-// 定义固定的URL前缀
-    var urlPrefix = "https://2870.push.ft07.com/send/sctp2870ttgw6leqbncu2cuboscrvqq.send/sctp2870ttgw6leqbncu2cuboscrvqq.send?";
-// 定义可变的部分
-    var shortTitle = "抖音续火花状态通知"; // 这里可以修改为你想要的标题
-    var longContent = "与"+ friendName +"\n"+"发送"+ messages +"消息"+"\n"+"成功";
-
-// 构建最终的URL
-    var finalUrl = urlPrefix + "title=" + encodeURIComponent(shortTitle) + "&desp=" + encodeURIComponent(longContent);
-
-// 发送GET请求
-    http.get(finalUrl, function(response) {
-        log("请求成功");
-        log("服务器响应: " + response.body.string());
-        log(response.body.string());
-        log(response.statusCode);
-    });
-}
-}
-// 注意：encodeURIComponent()函数用于确保字符串中的特殊字符被正确编码，以避免URL格式错误
