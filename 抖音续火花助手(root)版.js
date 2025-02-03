@@ -443,7 +443,7 @@ if (typeof friendName === "undefined" || friendName === null) {
     // 将 SpannableStringBuilder 转换为普通字符串
     friendName = friendName.toString().replace(/\u0000/g, "").trim();
 }
-    var friendWidget = text(friendName).findOnce();
+    var friendWidget = text(friendName).className("android.widget.TextView").findOne(5000);
     if (!friendWidget) {
         log("未找到好友，尝试滑动...");
         swipe(device.width / 2, device.height * 0.8, device.width / 2, device.height * 0.2, 400);
